@@ -1,0 +1,26 @@
+# Core ML dependencies
+torch>=2.0.0
+transformers @ git+https://github.com/BakerBunker/transformers@21dbefaa54e5bf180464696aa70af0bfc7a61d53
+
+# Qwen Omni utilities
+qwen-omni-utils
+
+# Audio processing
+librosa>=0.10.0
+soundfile>=0.12.0
+
+# UI
+gradio>=4.0.0
+
+# Quantization
+bitsandbytes>=0.41.0
+
+# Optional: Flash Attention (install separately)
+# pip install flash-attn --no-build-isolation
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Utilities
+numpy>=1.24.0

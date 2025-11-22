@@ -184,70 +184,44 @@ class GradioApp:
         Returns:
             Gradio Blocks interface
         """
-        with gr.Blocks(title="Qwen Omni Voice Assistant", theme=gr.themes.Soft()) as interface:
-            gr.Markdown("# 🎙️ Qwen Omni Voice Assistant")
-            gr.Markdown("Speak into your microphone and get voice responses!")
+        with gr.Blocks(title="Qwen Omni Voice Assistant") as interface:
+            gr.Markdown("## 🎙️ Qwen2.5 Omni Voice Chat (Audio In/Out Only)")
 
             with gr.Row():
-                with gr.Column(scale=1):
-                    # Input
-                    audio_input = gr.Audio(
-                        sources=["microphone", "upload"],
-                        type="numpy",
-                        label="Audio Input",
-                        show_download_button=False
-                    )
+                audio_input = gr.Audio(
+                    sources=["microphone", "upload"],
+                    type="numpy",
+                    label="🎤 Speak"
+                )
+                audio_output = gr.Audio(
+                    label="🔊 Response",
+                    type="filepath",
+                    interactive=True,
+                    autoplay=True
+                )
 
-                    # Parameters
-                    with gr.Accordion("Generation Parameters", open=False):
-                        temperature = gr.Slider(
-                            minimum=0.1,
-                            maximum=2.0,
-                            value=self.config.temperature,
-                            step=0.1,
-                            label="Temperature",
-                            info="Higher = more creative, Lower = more focused"
-                        )
-                        max_tokens = gr.Slider(
-                            minimum=64,
-                            maximum=1024,
-                            value=self.config.max_new_tokens,
-                            step=64,
-                            label="Max Tokens",
-                            info="Maximum response length"
-                        )
+            with gr.Accordion("⚙️ Parameters", open=False):
+                temperature = gr.Slider(
+                    minimum=0,
+                    maximum=1,
+                    value=self.config.temperature,
+                    step=0.1,
+                    label="Temperature"
+                )
+                max_tokens = gr.Slider(
+                    minimum=128,
+                    maximum=4096,
+                    value=self.config.max_new_tokens,
+                    step=1,
+                    label="Max new tokens"
+                )
 
-                    # Buttons
-                    with gr.Row():
-                        submit_btn = gr.Button("🎯 Submit", variant="primary", scale=2)
-                        clear_btn = gr.Button("🗑️ Clear", scale=1)
-                        status_btn = gr.Button("📊 Status", scale=1)
+            submit_btn = gr.Button("Send")
 
-                with gr.Column(scale=1):
-                    # Output
-                    audio_output = gr.Audio(
-                        label="Audio Response",
-                        autoplay=True,
-                        show_download_button=True
-                    )
-                    text_output = gr.Textbox(
-                        label="Response Text",
-                        lines=4,
-                        show_copy_button=True
-                    )
-
-            # Chat history
-            chatbot = gr.Chatbot(
-                label="Conversation History",
-                height=300,
-                show_copy_button=True
-            )
-
-            # Status display
-            status_display = gr.Markdown(
-                value="*Click 'Status' to see system information*",
-                label="System Status"
-            )
+            # Hidden components for session management
+            chatbot = gr.Chatbot(visible=False)
+            text_output = gr.Textbox(visible=False)
+            status_display = gr.Markdown(visible=False)
 
             # Event handlers
             submit_btn.click(
@@ -255,38 +229,6 @@ class GradioApp:
                 inputs=[audio_input, chatbot, temperature, max_tokens],
                 outputs=[audio_output, text_output, chatbot]
             )
-
-            clear_btn.click(
-                fn=self.clear_history,
-                outputs=[chatbot, text_output, status_display]
-            )
-
-            status_btn.click(
-                fn=self.get_status,
-                outputs=[status_display]
-            )
-
-            # Info
-            with gr.Accordion("ℹ️ Information", open=False):
-                gr.Markdown(f"""
-                ### Model Configuration
-                - **Model**: `{self.config.model_path}`
-                - **Quantization**: `{self.config.quantization}`
-                - **Input Sample Rate**: `{self.config.sample_rate_input} Hz`
-                - **Output Sample Rate**: `{self.config.sample_rate_output} Hz`
-
-                ### Usage Instructions
-                1. **Record**: Click the microphone button to record your voice
-                2. **Upload**: Or upload an existing audio file
-                3. **Adjust**: Modify generation parameters if needed
-                4. **Submit**: Click Submit to get a response
-                5. **Listen**: The response will auto-play
-
-                ### Tips
-                - Speak clearly and at a normal pace
-                - Keep recordings under 30 seconds for best results
-                - Use 'Clear' to start a new conversation
-                """)
 
         return interface
 

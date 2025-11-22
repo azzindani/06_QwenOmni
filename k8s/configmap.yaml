@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qwen-omni-config
+data:
+  model_path: "Qwen/Qwen2.5-Omni-3B"
+  quantization: "4bit"
+  temperature: "0.6"
+  max_new_tokens: "256"
+  sample_rate_input: "16000"
+  sample_rate_output: "24000"

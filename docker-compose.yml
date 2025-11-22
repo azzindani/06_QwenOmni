@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  qwen-omni:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qwen-omni-assistant
+    ports:
+      - "7860:7860"
+    volumes:
+      # Mount model cache to avoid re-downloading
+      - huggingface_cache:/root/.cache/huggingface
+      # Mount conversation history
+      - ./conversation_history:/app/conversation_history
+      # Mount custom models (optional)
+      - ./models:/app/models
+    environment:
+      - MODEL_PATH=${MODEL_PATH:-Qwen/Qwen2.5-Omni-3B}
+      - QUANTIZATION=${QUANTIZATION:-4bit}
+      - TEMPERATURE=${TEMPERATURE:-0.6}
+      - MAX_NEW_TOKENS=${MAX_NEW_TOKENS:-256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+
+volumes:
+  huggingface_cache:
+    driver: local

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: qwen-omni
+
+resources:
+  - configmap.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - hpa.yaml
+
+commonLabels:
+  app.kubernetes.io/name: qwen-omni
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/component: voice-assistant
